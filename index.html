@@ -52,9 +52,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -64,6 +64,46 @@
 </header>
       <div class="outer">
         <section id="main">
+  
+    <article id="post-aspnetcore2.0-ef" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/10/15/aspnetcore2.0-ef/" class="article-date">
+  <time datetime="2017-10-15T10:00:13.000Z" itemprop="datePublished">2017-10-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/15/aspnetcore2.0-ef/">aspnetcore2.0-Entity Framework</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>EntityFramework是微软推荐的ORM框架。好的，下面直接进入主题：</p>
+<h2 id="migration"><a href="#migration" class="headerlink" title="migration"></a>migration</h2><p>由于ORM框架要保证内存中的数据结构和数据库中的数据结构完全一样，所以每当内存中的数据结构发生变化需要migration，以保证一致：</p>
+<p>dotnetcore ef 的migration命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">In Visual Studio, use the Package Manager Console to scaffold a new migration </div><div class="line">for these changes and apply them to the database:</div><div class="line">PM&gt; Add-Migration [migration name] </div><div class="line">PM&gt; Update-DatabaseAlternatively, you can scaffold a new migration and </div><div class="line">apply it from a command prompt at your project directory:</div><div class="line">&gt; dotnet ef migrations add [migration name] </div><div class="line">&gt; dotnet ef database update</div></pre></td></tr></table></figure></p>
+<h2 id="primary-key"><a href="#primary-key" class="headerlink" title="primary key"></a>primary key</h2><p>By default, the Entity Framework interprets a property that’s named ID or classnameID as the primary key.<br>如果是composition key, ef for asp.net core只能通过fluent api来实现：<br><figure class="highlight plain"><figcaption><span>lang=csharp</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">protected override void OnModelCreating(ModelBuilder builder)</div><div class="line">&#123;</div><div class="line">    builder.Entity&lt;UserHome&gt;().HasKey(new[] &#123; nameof(UserHome.HomeID), nameof(UserHome.UserID) &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-ef/" data-id="cj8smx822000044hhrssjrkk7" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
   
     <article id="post-aspnetcore2.0-action-filter" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
@@ -116,7 +156,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/" data-id="cj8slfnqa0000z0hhpmd3a1w2" class="article-share-link">Partager</a>
+      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/" data-id="cj8smx827000144hhh2lqwe9b" class="article-share-link">Share</a>
       
       
     </footer>
@@ -151,9 +191,13 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Articles récents</h3>
+    <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/10/15/aspnetcore2.0-ef/">aspnetcore2.0-Entity Framework</a>
+          </li>
         
           <li>
             <a href="/2017/10/15/aspnetcore2.0-action-filter/">Action Filter</a>
@@ -172,7 +216,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 David Tang<br>
-      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
