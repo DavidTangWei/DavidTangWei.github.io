@@ -14,7 +14,7 @@
 <meta property="og:locale" content="Chinese">
 <meta property="og:image" content="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/filter_action.png">
 <meta property="og:image" content="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/filter_sequence.png">
-<meta property="og:updated_time" content="2017-10-15T08:43:12.678Z">
+<meta property="og:updated_time" content="2017-11-01T16:08:11.934Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Action Filter">
 <meta name="twitter:description" content="Asp.net core 2.0 中根据内嵌的不同Filter运行在请求管道（request pipeline）的不同阶段。主要用途有：  authorization 验证权限 根据请求的文件不同，来缩短Request pipeline。比如：有些静态资源的请求 对于请求接口参数的Validation，来实现解耦等等  filter 工作原理中间件的执行顺序如下： filter的执行顺序：   A">
@@ -56,9 +56,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -111,14 +111,14 @@
 </ul>
 <img src="/2017/10/15/aspnetcore2.0-action-filter/filter_sequence.png" alt="filter 执行顺序" title="filter 执行顺序">
 <h2 id="举例说明"><a href="#举例说明" class="headerlink" title="举例说明"></a>举例说明</h2><h3 id="问题描述："><a href="#问题描述：" class="headerlink" title="问题描述："></a>问题描述：</h3><p>本文主要针对action方法的参数Validaton逻辑：将判断Validation逻辑放在Filter当中，从而达到代码逻辑的解耦，不需要在每个Action函数体里面都<br>进行参数的Validation判断：</p>
-<figure class="highlight csharp"><figcaption><span>接口参数</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Test</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> Guid Id &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</div><div class="line"></div><div class="line">    [<span class="meta">Required</span>]</div><div class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</div><div class="line">    <span class="keyword">public</span> DateTime CreatedAt &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight csharp"><figcaption><span>接口参数</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Test</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> Guid Id &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</div><div class="line">    [<span class="meta">Required</span>]</div><div class="line">    <span class="keyword">public</span> <span class="keyword">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</div><div class="line">    <span class="keyword">public</span> DateTime CreatedAt &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>通过ActionFilter来实现argument validation，因为ActionFilter的触发在ModelBinding之后，可以检测Model的IsValid属性来判断参数是否有效。<br><figure class="highlight csharp"><figcaption><span>ActionFilter</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ModelValidationAttribute</span> : <span class="title">ActionFilterAttribute</span></div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnActionExecuting</span>(<span class="params">ActionExecutingContext context</span>)</span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!context.ModelState.IsValid)</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// short-circuit pipeline</span></div><div class="line">            context.Result = <span class="keyword">new</span> BadRequestResult();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h3 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h3><p>将model validation的逻辑与具体的Action Execute分开<br><figure class="highlight csharp"><figcaption><span>Usage</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[<span class="meta">HttpPost</span>]</div><div class="line">[<span class="meta">ModelValidation</span>]</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;IActionResult&gt; <span class="title">Create</span>(<span class="params">[Bind(<span class="keyword">nameof</span>(Test.Name</span>))] Test test)</span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    test.Id = Guid.NewGuid();</div><div class="line">    test.CreatedAt = DateTime.Now;</div><div class="line">    _context.Add(test);</div><div class="line">    <span class="keyword">await</span> _context.SaveChangesAsync();</div><div class="line">    <span class="keyword">return</span> RedirectToAction(<span class="keyword">nameof</span>(Index));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/" data-id="cj9h857zz0002vkhhqzi71qsp" class="article-share-link">Partager</a>
+      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/" data-id="cj9h8nkm4000268hhoot6cypw" class="article-share-link">Share</a>
       
       
     </footer>
@@ -128,7 +128,7 @@
 <nav id="article-nav">
   
     <a href="/2017/10/15/aspnetcore2.0-ef/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Récent</strong>
+      <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
           aspnetcore2.0-Entity Framework
@@ -158,7 +158,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li></ul>
     </div>
   </div>
 
@@ -166,9 +166,13 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Articles récents</h3>
+    <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/11/02/kestrel/">kestrel</a>
+          </li>
         
           <li>
             <a href="/2017/10/17/aspnetcore2-0-middleware/">aspnetcore2.0_middleware</a>
@@ -199,7 +203,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 David Tang<br>
-      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
