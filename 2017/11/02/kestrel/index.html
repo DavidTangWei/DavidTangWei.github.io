@@ -5,17 +5,17 @@
   
   <title>kestrel | New World</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="kestrel:Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library.  Microsoftdocs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?t">
+  <meta name="description" content="Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library.  Microsoftdocs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?tabs=aspn">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kestrel">
 <meta property="og:url" content="http://yoursite.com/2017/11/02/kestrel/index.html">
 <meta property="og:site_name" content="New World">
-<meta property="og:description" content="kestrel:Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library.  Microsoftdocs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?t">
+<meta property="og:description" content="Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library.  Microsoftdocs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?tabs=aspn">
 <meta property="og:locale" content="Chinese">
-<meta property="og:updated_time" content="2017-11-01T16:09:30.709Z">
+<meta property="og:updated_time" content="2017-11-02T03:18:59.556Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kestrel">
-<meta name="twitter:description" content="kestrel:Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library.  Microsoftdocs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?t">
+<meta name="twitter:description" content="Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library.  Microsoftdocs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?tabs=aspn">
   
     <link rel="alternate" href="/atom.xml" title="New World" type="application/atom+xml">
   
@@ -86,13 +86,28 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="kestrel"><a href="#kestrel" class="headerlink" title="kestrel:"></a>kestrel:</h1><blockquote><p>Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library. </p>
+        <blockquote><p>Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library. </p>
 <footer><strong>Microsoft</strong><cite><a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?tabs=aspnetcore2x" target="_blank" rel="external">docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?tabs=aspnetcore2x</a></cite></footer></blockquote>
+<p>通过微软的定义：可知Kestrel 是一个跨平台的，异步IO的library。<br>Kestrel支持：Https, websocket, Unix Socket</p>
+<h2 id="Kestrel工作方式："><a href="#Kestrel工作方式：" class="headerlink" title="Kestrel工作方式："></a>Kestrel工作方式：</h2><ol>
+<li><p>without reverse proxy<br>Internet &lt;-&gt;(http) ASP.NET Core application ( Kestrel &lt;-&gt; (httpContext) code )</p>
+</li>
+<li><p>with reverse proxy:<br>Internet &lt;-&gt; (http) Reverse proxy (IIS/windows, Nginx/linux) &lt;-&gt;(http) ASP.NET CORE application ( Kestrel &lt;-&gt; (httpContext) code )</p>
+</li>
+</ol>
+<p>Tip：<br>反向代理：安全（多一层代理），load balance （平衡webserver负载），静态资源的缓存等等；另外，由于代理转发，故可以让多个web应用共享同一port和IP，</p>
+<h2 id="Kestrel在ASP-NET-CORE中的应用："><a href="#Kestrel在ASP-NET-CORE中的应用：" class="headerlink" title="Kestrel在ASP.NET CORE中的应用："></a>Kestrel在ASP.NET CORE中的应用：</h2><p>IWebHostBuilder 扩展方法：UseKestrel()<br>同时可以设置限制的配置选项：</p>
+<ol>
+<li>MaximunClientConnection 最多的客户端连接数   default is null </li>
+<li>MaximunRequestBodySize 最大的请求Body大小    default is 30000000bytes</li>
+<li>MinimunRequestBodyDataRate  Kestrel 检查传输速度，如果传输速度太小 close the connection.</li>
+</ol>
+<h2 id="Endpoint-Configuration"><a href="#Endpoint-Configuration" class="headerlink" title="Endpoint Configuration"></a>Endpoint Configuration</h2><p>可以Listen 具体某一端口的信息以及设置SSL证书<br>listen(ip, port, action<options>) </options></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/11/02/kestrel/" data-id="cj9h8nkm8000468hh4n2pn8eg" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/11/02/kestrel/" data-id="cj9ob55ld0004m8hhoodbt3jt" class="article-share-link">Share</a>
       
       
     </footer>

@@ -87,13 +87,28 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="kestrel"><a href="#kestrel" class="headerlink" title="kestrel:"></a>kestrel:</h1><blockquote><p>Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library. </p>
+        <blockquote><p>Kestrel is a cross-platform web server for ASP.NET Core based on libuv, a cross-platform asynchronous I/O library. </p>
 <footer><strong>Microsoft</strong><cite><a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?tabs=aspnetcore2x" target="_blank" rel="external">docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?tabs=aspnetcore2x</a></cite></footer></blockquote>
+<p>通过微软的定义：可知Kestrel 是一个跨平台的，异步IO的library。<br>Kestrel支持：Https, websocket, Unix Socket</p>
+<h2 id="Kestrel工作方式："><a href="#Kestrel工作方式：" class="headerlink" title="Kestrel工作方式："></a>Kestrel工作方式：</h2><ol>
+<li><p>without reverse proxy<br>Internet &lt;-&gt;(http) ASP.NET Core application ( Kestrel &lt;-&gt; (httpContext) code )</p>
+</li>
+<li><p>with reverse proxy:<br>Internet &lt;-&gt; (http) Reverse proxy (IIS/windows, Nginx/linux) &lt;-&gt;(http) ASP.NET CORE application ( Kestrel &lt;-&gt; (httpContext) code )</p>
+</li>
+</ol>
+<p>Tip：<br>反向代理：安全（多一层代理），load balance （平衡webserver负载），静态资源的缓存等等；另外，由于代理转发，故可以让多个web应用共享同一port和IP，</p>
+<h2 id="Kestrel在ASP-NET-CORE中的应用："><a href="#Kestrel在ASP-NET-CORE中的应用：" class="headerlink" title="Kestrel在ASP.NET CORE中的应用："></a>Kestrel在ASP.NET CORE中的应用：</h2><p>IWebHostBuilder 扩展方法：UseKestrel()<br>同时可以设置限制的配置选项：</p>
+<ol>
+<li>MaximunClientConnection 最多的客户端连接数   default is null </li>
+<li>MaximunRequestBodySize 最大的请求Body大小    default is 30000000bytes</li>
+<li>MinimunRequestBodyDataRate  Kestrel 检查传输速度，如果传输速度太小 close the connection.</li>
+</ol>
+<h2 id="Endpoint-Configuration"><a href="#Endpoint-Configuration" class="headerlink" title="Endpoint Configuration"></a>Endpoint Configuration</h2><p>可以Listen 具体某一端口的信息以及设置SSL证书<br>listen(ip, port, action<options>) </options></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/11/02/kestrel/" data-id="cj9h8nkm8000468hh4n2pn8eg" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/11/02/kestrel/" data-id="cj9ob55ld0004m8hhoodbt3jt" class="article-share-link">Share</a>
       
       
     </footer>
@@ -125,11 +140,33 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>中间件(Middleware):</p>
+<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p>中间件集成在asp.net pipeline，用来处理请求和响应：</p>
+<ol>
+<li>决定将请求是否交由下一个请求管道处理;</li>
+<li>根据需求设计中间件的执行顺序<br>request delegate用来构建请求管道（pipeline），pipeline本质上.net上也就是delegate。<img src="/2017/10/17/aspnetcore2-0-middleware/request-delegate-pipeline.png" alt="request pipeline" title="request pipeline">
+</li>
+</ol>
+<h2 id="与传统module，handler的区别"><a href="#与传统module，handler的区别" class="headerlink" title="与传统module，handler的区别"></a>与传统module，handler的区别</h2><p>middleware 和传统的asp.net handler和module的区别：</p>
+<ol>
+<li>asp.net module需要配置 web.config, Global.asax.cs等很多文件，而middleware只需写csharp代码</li>
+<li>asp.net module的顺序需要借助asp.net 生命周期，而middleware则更加灵活，可以通过csharp来替换</li>
+<li>middleware request和reponse的顺序是相反的, 而module 是相同的</li>
+</ol>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><ol>
+<li>Run: teminal middleware</li>
+<li>Use: adding middleware</li>
+<li>map: map 映射<figure class="highlight csharp"><figcaption><span>中间件扩展方法</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Startup</span></div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">HandleMapTest1</span>(<span class="params">IApplicationBuilder app</span>)</span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        app.Run(<span class="keyword">async</span> context =&gt;</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Map Test 1"</span>);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">HandleMapTest2</span>(<span class="params">IApplicationBuilder app</span>)</span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        app.Run(<span class="keyword">async</span> context =&gt;</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Map Test 2"</span>);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app</span>)</span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        app.Map(<span class="string">"/map1"</span>, HandleMapTest1);</div><div class="line"></div><div class="line">        app.Map(<span class="string">"/map2"</span>, HandleMapTest2);</div><div class="line"></div><div class="line">        app.Run(<span class="keyword">async</span> context =&gt;</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello from non-Map delegate. &lt;p&gt;"</span>);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>中间件的表现形式：匿名方法，可重用的类<br><figure class="highlight csharp"><figcaption><span>匿名方法</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">app.Run(<span class="keyword">async</span> context =&gt;</div><div class="line">       &#123;</div><div class="line">           <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello, World!"</span>);</div><div class="line">       &#125;);</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><figcaption><span>reusable class</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">public class MyMiddleware</div><div class="line">&#123;</div><div class="line">    private readonly RequestDelegate _next;</div><div class="line"></div><div class="line">    public MyMiddleware(RequestDelegate next)</div><div class="line">    &#123;</div><div class="line">        _next = next;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // required method</div><div class="line">    public async Task Invoke(HttpContext httpContext, IMyScopedService svc)</div><div class="line">    &#123;</div><div class="line">        svc.MyProperty = 1000;</div><div class="line">        await _next(httpContext);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="次序"><a href="#次序" class="headerlink" title="次序"></a>次序</h2><p>中间件的次序定义在configure，中间件影响着软件的安全，性能和可扩展。<br><figure class="highlight csharp"><figcaption><span>常用中间件的顺序</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app</span>)</span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">    app.UseExceptionHandler(<span class="string">"/Home/Error"</span>); <span class="comment">// Call first to catch exceptions</span></div><div class="line">                                            <span class="comment">// thrown in the following middleware.</span></div><div class="line"></div><div class="line">    app.UseStaticFiles();                   <span class="comment">// Return static files and end pipeline.</span></div><div class="line"></div><div class="line">    app.UseAuthentication();               <span class="comment">// Authenticate before you access</span></div><div class="line">                                           <span class="comment">// secure resources.</span></div><div class="line"></div><div class="line">    app.UseMvcWithDefaultRoute();          <span class="comment">// Add MVC to the request pipeline.</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/17/aspnetcore2-0-middleware/" data-id="cj9h8nklw000068hh8pevvanc" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/17/aspnetcore2-0-middleware/" data-id="cj9ob55km0000m8hh73ab9kll" class="article-share-link">Share</a>
       
       
     </footer>
@@ -169,15 +206,22 @@
 <h2 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h2><ul>
 <li>不同于轮询，websocket建立连接后，客户端与服务器是完全平等的，可以互相请求。</li>
 <li>websocket不需要HTTP Header来验证身份，websocket更加轻量，传输速度也更加快。</li>
+<li>没有同源限制</li>
+<li>与Http协议保持良好的兼容性，默认端口也是80或者443</li>
+<li>基于HTTP请求头进行握手，会有sec-websocket-key计算，目的是验证服务端是否具有建立websocket的能力</li>
 </ul>
 <p>websocket通常应用于浏览器和服务器的通讯，但是也可以应用于客户端和服务器的通讯。</p>
 
-<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><p>more</p>
-
+<h2 id="实例-ASP-NET-CORE-2-0"><a href="#实例-ASP-NET-CORE-2-0" class="headerlink" title="实例 (ASP.NET CORE 2.0)"></a>实例 (ASP.NET CORE 2.0)</h2><h3 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h3><p>使用websocket中间件<br><figure class="highlight csharp"><figcaption><span>configuration</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> webSocketOptions = <span class="keyword">new</span> WebSocketOptions()</div><div class="line">&#123;</div><div class="line">    KeepAliveInterval = TimeSpan.FromSeconds(<span class="number">120</span>),</div><div class="line">    ReceiveBufferSize = <span class="number">4</span> * <span class="number">1024</span></div><div class="line">&#125;;</div><div class="line">app.UseWebSockets(webSocketOptions);</div></pre></td></tr></table></figure></p>
+<ul>
+<li>KeepAliveInterval: 心跳包的发送频率，用来保证连接可靠</li>
+<li>ReceiveBufferSize: socket缓冲区的大小</li>
+</ul>
+<h3 id="code-demo"><a href="#code-demo" class="headerlink" title="code demo"></a>code demo</h3>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/17/aspnetcore2-0-websocket/" data-id="cj9h8nkm2000168hhe4gall87" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/17/aspnetcore2-0-websocket/" data-id="cj9ob55ku0001m8hhprrcsf28" class="article-share-link">Share</a>
       
       
     </footer>
@@ -217,7 +261,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-ef/" data-id="cj9h8nkm7000368hh15adjvlq" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-ef/" data-id="cj9ob55l00003m8hhtew16z5m" class="article-share-link">Share</a>
       
       
     </footer>
@@ -278,7 +322,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/" data-id="cj9h8nkm4000268hhoot6cypw" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/15/aspnetcore2.0-action-filter/" data-id="cj9ob55kw0002m8hh73hfk2h1" class="article-share-link">Share</a>
       
       
     </footer>

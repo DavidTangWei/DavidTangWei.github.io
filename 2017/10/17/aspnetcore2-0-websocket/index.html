@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="New World">
 <meta property="og:description" content="WebSocket是HTML5下一种新的协议。它实现了浏览器与服务器全双工通信，能更好的节省服务器资源和带宽并达到实时通讯的目的。它与HTTP一样通过已建立的TCP连接来传输数据，但是它和HTTP最大不同是：  WebSocket是一种双向通信协议。在建立连接后，WebSocket服务器端和客户端都能主动向对方发送或接收数据，就像Socket一样； WebSocket需要像TCP一样，先建立连接，">
 <meta property="og:locale" content="Chinese">
-<meta property="og:updated_time" content="2017-11-01T15:53:18.318Z">
+<meta property="og:updated_time" content="2017-11-02T03:18:52.923Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="aspnetcore2.0_websocket">
 <meta name="twitter:description" content="WebSocket是HTML5下一种新的协议。它实现了浏览器与服务器全双工通信，能更好的节省服务器资源和带宽并达到实时通讯的目的。它与HTTP一样通过已建立的TCP连接来传输数据，但是它和HTTP最大不同是：  WebSocket是一种双向通信协议。在建立连接后，WebSocket服务器端和客户端都能主动向对方发送或接收数据，就像Socket一样； WebSocket需要像TCP一样，先建立连接，">
@@ -94,15 +94,22 @@
 <h2 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h2><ul>
 <li>不同于轮询，websocket建立连接后，客户端与服务器是完全平等的，可以互相请求。</li>
 <li>websocket不需要HTTP Header来验证身份，websocket更加轻量，传输速度也更加快。</li>
+<li>没有同源限制</li>
+<li>与Http协议保持良好的兼容性，默认端口也是80或者443</li>
+<li>基于HTTP请求头进行握手，会有sec-websocket-key计算，目的是验证服务端是否具有建立websocket的能力</li>
 </ul>
 <p>websocket通常应用于浏览器和服务器的通讯，但是也可以应用于客户端和服务器的通讯。</p>
 
-<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><p>more</p>
-
+<h2 id="实例-ASP-NET-CORE-2-0"><a href="#实例-ASP-NET-CORE-2-0" class="headerlink" title="实例 (ASP.NET CORE 2.0)"></a>实例 (ASP.NET CORE 2.0)</h2><h3 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h3><p>使用websocket中间件<br><figure class="highlight csharp"><figcaption><span>configuration</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> webSocketOptions = <span class="keyword">new</span> WebSocketOptions()</div><div class="line">&#123;</div><div class="line">    KeepAliveInterval = TimeSpan.FromSeconds(<span class="number">120</span>),</div><div class="line">    ReceiveBufferSize = <span class="number">4</span> * <span class="number">1024</span></div><div class="line">&#125;;</div><div class="line">app.UseWebSockets(webSocketOptions);</div></pre></td></tr></table></figure></p>
+<ul>
+<li>KeepAliveInterval: 心跳包的发送频率，用来保证连接可靠</li>
+<li>ReceiveBufferSize: socket缓冲区的大小</li>
+</ul>
+<h3 id="code-demo"><a href="#code-demo" class="headerlink" title="code demo"></a>code demo</h3>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/17/aspnetcore2-0-websocket/" data-id="cj9h8nkm2000168hhe4gall87" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/17/aspnetcore2-0-websocket/" data-id="cj9ob55ku0001m8hhprrcsf28" class="article-share-link">Share</a>
       
       
     </footer>
